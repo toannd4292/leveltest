@@ -1,0 +1,1431 @@
+{%- assign featured_image = current_variant.featured_image | default: product.featured_image -%}
+
+{%- unless product.empty? -%}
+  <div
+    data-product-images
+    data-zoom="{{ settings.product_zoom_enable }}"
+    data-has-slideshow="false"
+  >
+    <div class="product__photos product__photos-{{ section_id }} product__photos--{{ thumbnail_position }}">
+      <div class="product__main-photos dataaos" data-aos="fade-up">
+        <div class="wrapDataPhoto">
+          <div class="wrapChildDataPhoto">
+            <div class="wrapDataThumbnailPhoto">
+              <div class="wrapThumnail"></div>
+            </div>
+            <div id="ProductPhotos-{{ section_id }}" class="ProductPhotosData dataaos" data-aos="fade-up">
+              <div class="pro_slides_for_desktop secondary-slides pro_slides pro_slides_data">
+                <div class="product-image-main">
+                  <div class="image-wrap ">
+                    <img class="lazyload" srcset="{{ 'bg-do-not-remove_900x900.png' | asset_url }}">
+                  </div>
+                </div>
+              </div>
+              {% assign YesColor = false %}
+              {% for options in product.options %}
+                {% if options contains 'Flavor' or options contains 'Color' or options contains 'Value' %}
+                  {% assign YesColor = true %}
+                {% endif %}
+              {% endfor %}
+
+              {% if YesColor %}
+                {%- for image in product.images -%}
+                  {%- assign is_featured = false -%}
+                  {%- if featured_image == image -%}
+                    {%- assign is_featured = true -%}
+                  {%- endif -%}
+                  {%- assign image_alt = image.alt -%}
+                  {%- assign has_product_video = false -%}
+                  {%- assign video_type = '' -%}
+                  {%- if image.alt contains 'youtube.com/watch' -%}
+                    {%- assign has_product_video = true -%}
+                    {%- assign video_type = 'youtube' -%}
+                    {%- assign video_id = image.alt | split: 'v=' -%}
+                    {%- assign video_id = video_id[1] | split: '&' | first -%}
+                  {%- endif -%}
+                  {%- if image.alt contains 'youtu.be/' -%}
+                    {%- assign has_product_video = true -%}
+                    {%- assign video_type = 'youtube' -%}
+                    {%- assign video_id = image.alt | split: '.be/' -%}
+                    {%- assign video_id = video_id[1] | split: '&' | first -%}
+                  {%- endif -%}
+                  {%- if image.alt contains 'vimeo.com' -%}
+                    {%- assign has_product_video = true -%}
+                    {%- assign video_type = 'vimeo' -%}
+                    {%- assign video_id = image.alt | split: '.com/' -%}
+                    {%- assign video_id = video_id[1] | split: '/' | first -%}
+                  {%- endif -%}
+                  {%- if image.alt contains '.mp4' -%}
+                    {%- assign has_product_video = true -%}
+                    {%- assign video_type = 'mp4' -%}
+                  {%- endif -%}
+                  {%- if has_product_video -%}
+                    {%- assign image_alt = product.title -%}
+                  {%- endif -%}
+                  <div
+                    class="proalt_Flavor pro_slider_alt_{{ image_alt | handle }} pro_slides_for_desktop {% if is_featured %}starting-slides pro_slides{% else %}secondary-slides pro_slides{% endif %}"
+                    data-index="{{ forloop.index0 }}"
+                    data_alt_video="{{ image_alt | handle }}"
+                  >
+                    <div class="product-image-main product-image-main--{{ section_id }}">
+                      <div
+                        class="
+                          image-wrap
+                          {% if has_product_video and video_type == 'youtube' %} hide{% endif %}
+                          {% if has_product_video and video_type == 'vimeo' %} hide{% endif %}
+                          {% if has_product_video and video_type == 'mp4' %} hide{% endif %}
+                        "
+                        style="height: 0; padding-bottom: {{ 100 | divided_by: image.aspect_ratio }}%;"
+                      >
+                        {%- assign img_url = image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                        {%- assign zoom_img_url = image | img_url: product_zoom_size -%}
+
+                        {%- if is_featured -%}
+                          <img
+                            class="lazyload"
+                            data-photoswipe-src="{{ zoom_img_url }}"
+                            data-photoswipe-width="{{ image.width }}"
+                            data-photoswipe-height="{{ image.height }}"
+                            data-index="{{ forloop.index }}"
+                            data-src="{{ img_url }}"
+                            data-widths="[360, 540, 720, 900, 1080]"
+                            data-aspectratio="{{ image.aspect_ratio }}"
+                            data-sizes="auto"
+                            alt="{{ image_alt | escape }}"
+                          >
+                          <noscript>
+                            <img
+                              class="lazyloaded"
+                              src="{{ image | img_url: product_image_size }}"
+                              alt="{{ image_alt | escape }}"
+                            >
+                          </noscript>
+                        {%- else -%}
+                          <img
+                            class="lazyload"
+                            data-photoswipe-src="{{ zoom_img_url }}"
+                            data-photoswipe-width="{{ image.width }}"
+                            data-photoswipe-height="{{ image.height }}"
+                            data-index="{{ forloop.index }}"
+                            data-src="{{ img_url }}"
+                            data-widths="[360, 540, 720, 900, 1080]"
+                            data-aspectratio="{{ image.aspect_ratio }}"
+                            data-sizes="auto"
+                            alt="{{ image_alt | escape }}"
+                          >
+                          <noscript>
+                            <img
+                              class="lazyloaded"
+                              src="{{ image | img_url: product_image_size }}"
+                              alt="{{ image_alt | escape }}"
+                            >
+                          </noscript>
+                        {%- endif -%}
+
+                        {%- if settings.product_zoom_enable -%}
+                          <button
+                            type="button"
+                            class="btn btn--body btn--circle {% if settings.product_zoom_enable %}photoswipe__image{{image_alt | replace: ' ', ''}}{% endif %}  product__photo-zoom"
+                          >
+                            {% include 'icon-search' %}
+                            <span class="icon__fallback-text">{{ 'general.accessibility.close_modal' | t }}</span>
+                          </button>
+                        {%- endif -%}
+                      </div>
+                      {%- if has_product_video -%}
+                        {%- assign aspect_width = settings.product_video_width | divided_by: 100.00 -%}
+                        {%- assign aspect_ratio = settings.product_video_height | divided_by: aspect_width -%}
+                        <div
+                          data-video-type="{{ video_type }}"
+                          class="
+                            product__video-wrapper
+                            {% if has_product_video %}
+                              {% if video_type == 'youtube' or video_type == 'vimeo' %}
+                                loading
+                              {% endif %}
+                            {% endif %}
+                          "
+                          data-video-style="{{ settings.product_video_style }}"
+                          style="padding-bottom: {{ aspect_ratio }}%;"
+                        >
+                          {%- if video_type == 'youtube' -%}
+                            <div
+                              id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                              class="product__video"
+                              data-image-count="{{product.images | size }}"
+                              data-video-type="{{ video_type }}"
+                              data-video-style="{{ settings.product_video_style }}"
+                              data-youtube-id="{{ video_id }}"
+                              data-video-width="{{ settings.product_video_width }}"
+                              data-video-height="{{ settings.product_video_height }}"
+                            ></div>
+                          {%- endif -%}
+                          {%- if video_type == 'vimeo' -%}
+                            <div
+                              id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                              class="product__video"
+                              data-image-count="{{product.images | size }}"
+                              data-video-type="{{ video_type }}"
+                              data-video-style="{{ settings.product_video_style }}"
+                              data-video-id="{{ video_id }}"
+                              data-video-width="{{ settings.product_video_width }}"
+                              data-video-height="{{ settings.product_video_height }}"
+                            ></div>
+                          {%- endif -%}
+                          {%- if video_type == 'mp4' -%}
+                            <video
+                              loop
+                              playsinline
+                              {% if settings.product_video_style == 'muted' %}
+                                muted
+                              {% endif %}
+                              {% if settings.product_video_style == 'unmuted' %}
+                                controls
+                              {% endif %}
+                              controlsList="nodownload"
+                              data-image-count="{{product.images | size }}"
+                              data-video-type="{{ video_type }}"
+                              data-video-style="{{ settings.product_video_style }}"
+                              {% if isModal %}
+                                data-video-src="{{ image.alt }}"
+                              {% endif %}
+                              id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                              class="product__video"
+                            >
+                              {%- unless isModal -%}
+                                <source src="{{ image.alt }}" type="video/mp4">
+                              {%- endunless -%}
+                              Your browser does not support the video tag.
+                            </video>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                {%- endfor -%}
+              {% else %}
+                <!-- without Color -->
+                {%- for image in product.images -%}
+                  {%- assign is_featured = false -%}
+                  {%- if featured_image == image -%}
+                    {%- assign is_featured = true -%}
+                  {%- endif -%}
+                  {%- assign image_alt = image.alt -%}
+                  {%- assign has_product_video = false -%}
+                  {%- assign video_type = '' -%}
+                  {%- if image.alt contains 'youtube.com/watch' -%}
+                    {%- assign has_product_video = true -%}
+                    {%- assign video_type = 'youtube' -%}
+                    {%- assign video_id = image.alt | split: 'v=' -%}
+                    {%- assign video_id = video_id[1] | split: '&' | first -%}
+                  {%- endif -%}
+                  {%- if image.alt contains 'youtu.be/' -%}
+                    {%- assign has_product_video = true -%}
+                    {%- assign video_type = 'youtube' -%}
+                    {%- assign video_id = image.alt | split: '.be/' -%}
+                    {%- assign video_id = video_id[1] | split: '&' | first -%}
+                  {%- endif -%}
+                  {%- if image.alt contains 'vimeo.com' -%}
+                    {%- assign has_product_video = true -%}
+                    {%- assign video_type = 'vimeo' -%}
+                    {%- assign video_id = image.alt | split: '.com/' -%}
+                    {%- assign video_id = video_id[1] | split: '/' | first -%}
+                  {%- endif -%}
+                  {%- if image.alt contains '.mp4' -%}
+                    {%- assign has_product_video = true -%}
+                    {%- assign video_type = 'mp4' -%}
+                  {%- endif -%}
+                  {%- if has_product_video -%}
+                    {%- assign image_alt = product.title -%}
+                  {%- endif -%}
+                  <div
+                    class="withoutColor daser pro_slider_alt_{{ image_alt | handle }} pro_slides_for_desktop {% if is_featured %}starting-slides pro_slides{% else %}secondary-slides pro_slides{% endif %} slider_alt_actives slider_alt_actives_{{ forloop.index }}"
+                    data-index="{{ forloop.index0 }}"
+                    data_alt_video="{{ image_alt | handle }}-{{variant.title| handle}}_{{ forloop.index }}"
+                  >
+                    <div class="product-image-main product-image-main--{{ section_id }}">
+                      <div
+                        class="
+                          image-wrap
+                          {% if has_product_video and video_type == 'youtube' %} hide{% endif %}
+                          {% if has_product_video and video_type == 'vimeo' %} hide{% endif %}
+                          {% if has_product_video and video_type == 'mp4' %} hide{% endif %}
+                        "
+                        style="height: 0; padding-bottom: {{ 100 | divided_by: image.aspect_ratio }}%;"
+                      >
+                        {%- assign img_url = image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                        {%- assign zoom_img_url = image | img_url: product_zoom_size -%}
+
+                        {%- if is_featured -%}
+                          <img
+                            class="{% if settings.product_zoom_enable %}photoswipe__image{% endif %} lazyload"
+                            data-photoswipe-src="{{ zoom_img_url }}"
+                            data-photoswipe-width="{{ image.width }}"
+                            data-photoswipe-height="{{ image.height }}"
+                            data-index="{{ forloop.index }}"
+                            data-src="{{ img_url }}"
+                            data-widths="[360, 540, 720, 900, 1080]"
+                            data-aspectratio="{{ image.aspect_ratio }}"
+                            data-sizes="auto"
+                            alt="{{ image_alt | escape }}"
+                          >
+                          <noscript>
+                            <img
+                              class="lazyloaded"
+                              src="{{ image | img_url: product_image_size }}"
+                              alt="{{ image_alt | escape }}"
+                            >
+                          </noscript>
+                        {%- else -%}
+                          <img
+                            class="{% if settings.product_zoom_enable %}photoswipe__image{% endif %} lazyload"
+                            data-photoswipe-src="{{ zoom_img_url }}"
+                            data-photoswipe-width="{{ image.width }}"
+                            data-photoswipe-height="{{ image.height }}"
+                            data-index="{{ forloop.index }}"
+                            data-src="{{ img_url }}"
+                            data-widths="[360, 540, 720, 900, 1080]"
+                            data-aspectratio="{{ image.aspect_ratio }}"
+                            data-sizes="auto"
+                            alt="{{ image_alt | escape }}"
+                          >
+                          <noscript>
+                            <img
+                              class="lazyloaded"
+                              src="{{ image | img_url: product_image_size }}"
+                              alt="{{ image_alt | escape }}"
+                            >
+                          </noscript>
+                        {%- endif -%}
+
+                        {%- if settings.product_zoom_enable -%}
+                          <button
+                            type="button"
+                            class="btn btn--body btn--circle js-photoswipe__zoom product__photo-zoom"
+                          >
+                            {% include 'icon-search' %}
+                            <span class="icon__fallback-text">{{ 'general.accessibility.close_modal' | t }}</span>
+                          </button>
+                        {%- endif -%}
+                      </div>
+                      {%- if has_product_video -%}
+                        {%- assign aspect_width = settings.product_video_width | divided_by: 100.00 -%}
+                        {%- assign aspect_ratio = settings.product_video_height | divided_by: aspect_width -%}
+                        <div
+                          data-video-type="{{ video_type }}"
+                          class="
+                            product__video-wrapper
+                            {% if has_product_video %}
+                              {% if video_type == 'youtube' or video_type == 'vimeo' %}
+                                loading
+                              {% endif %}
+                            {% endif %}
+                          "
+                          data-video-style="{{ settings.product_video_style }}"
+                          style="padding-bottom: {{ aspect_ratio }}%;"
+                        >
+                          {%- if video_type == 'youtube' -%}
+                            <div
+                              id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                              class="product__video"
+                              data-image-count="{{product.images | size }}"
+                              data-video-type="{{ video_type }}"
+                              data-video-style="{{ settings.product_video_style }}"
+                              data-youtube-id="{{ video_id }}"
+                              data-video-width="{{ settings.product_video_width }}"
+                              data-video-height="{{ settings.product_video_height }}"
+                            ></div>
+                          {%- endif -%}
+                          {%- if video_type == 'vimeo' -%}
+                            <div
+                              id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                              class="product__video"
+                              data-image-count="{{product.images | size }}"
+                              data-video-type="{{ video_type }}"
+                              data-video-style="{{ settings.product_video_style }}"
+                              data-video-id="{{ video_id }}"
+                              data-video-width="{{ settings.product_video_width }}"
+                              data-video-height="{{ settings.product_video_height }}"
+                            ></div>
+                          {%- endif -%}
+                          {%- if video_type == 'mp4' -%}
+                            <video
+                              loop
+                              playsinline
+                              {% if settings.product_video_style == 'muted' %}
+                                muted
+                              {% endif %}
+                              {% if settings.product_video_style == 'unmuted' %}
+                                controls
+                              {% endif %}
+                              controlsList="nodownload"
+                              data-image-count="{{product.images | size }}"
+                              data-video-type="{{ video_type }}"
+                              data-video-style="{{ settings.product_video_style }}"
+                              {% if isModal %}
+                                data-video-src="{{ image.alt }}"
+                              {% endif %}
+                              id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                              class="product__video"
+                            >
+                              {%- unless isModal -%}
+                                <source src="{{ image.alt }}" type="video/mp4">
+                              {%- endunless -%}
+                              Your browser does not support the video tag.
+                            </video>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                {%- endfor -%}
+              {% endif %}
+              <!-- for mobile -->
+              <!-- Swiper -->
+
+              {% if YesColor %}
+                {% for variant in product.variants %}
+                  <div
+                    class="swiper-container-product variant_title_{{variant.title| handle}}"
+                    data-galleryuid="{{forloop.index}}"
+                    data-option="{{variant.title | replace: ' / ',' ' | replace: '$',''}}"
+                  >
+                    <div class="swiper-wrapper">
+                      {%- for image in product.images -%}
+                        {% assign ALT = image.alt %}
+                        {% assign varAlt = variant.title | replace: ' / ', ' ' | replace: '$', '' %}
+                        {% if ALT == varAlt %}
+                          {%- assign is_featured = false -%}
+                          {%- if featured_image == image -%}
+                            {%- assign is_featured = true -%}
+                          {%- endif -%}
+                          {%- assign image_alt = image.alt -%}
+                          {%- assign has_product_video = false -%}
+                          {%- assign video_type = '' -%}
+                          {%- if image.alt contains 'youtube.com/watch' -%}
+                            {%- assign has_product_video = true -%}
+                            {%- assign video_type = 'youtube' -%}
+                            {%- assign video_id = image.alt | split: 'v=' -%}
+                            {%- assign video_id = video_id[1] | split: '&' | first -%}
+                          {%- endif -%}
+                          {%- if image.alt contains 'youtu.be/' -%}
+                            {%- assign has_product_video = true -%}
+                            {%- assign video_type = 'youtube' -%}
+                            {%- assign video_id = image.alt | split: '.be/' -%}
+                            {%- assign video_id = video_id[1] | split: '&' | first -%}
+                          {%- endif -%}
+                          {%- if image.alt contains 'vimeo.com' -%}
+                            {%- assign has_product_video = true -%}
+                            {%- assign video_type = 'vimeo' -%}
+                            {%- assign video_id = image.alt | split: '.com/' -%}
+                            {%- assign video_id = video_id[1] | split: '/' | first -%}
+                          {%- endif -%}
+                          {%- if image.alt contains '.mp4' -%}
+                            {%- assign has_product_video = true -%}
+                            {%- assign video_type = 'mp4' -%}
+                          {%- endif -%}
+                          {%- if has_product_video -%}
+                            {%- assign image_alt = product.title -%}
+                          {%- endif -%}
+                          <div
+                            class="swiper-slide pro_slides_for_mobile {% if is_featured %}starting-slides pro_slides{% else %}secondary-slides pro_slides{% endif %}"
+                            data-index="{{ forloop.index0 }}"
+                          >
+                            <div class="product-image-main product-image-main--{{ section_id }}">
+                              <div
+                                class="
+                                  image-wrap image-wrap-mobile
+                                  {% if has_product_video and video_type == 'youtube' %} hide{% endif %}
+                                  {% if has_product_video and video_type == 'vimeo' %} hide{% endif %}
+                                  {% if has_product_video and video_type == 'mp4' %} hide{% endif %}
+                                "
+                                style="height: 0; padding-bottom: {{ 100 | divided_by: image.aspect_ratio }}%;"
+                              >
+                                {%- assign img_url = image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                                {%- assign zoom_img_url = image | img_url: product_zoom_size -%}
+
+                                {%- if is_featured -%}
+                                  <img
+                                    class="lazyload"
+                                    data-photoswipe-src="{{ zoom_img_url }}"
+                                    data-photoswipe-width="{{ image.width }}"
+                                    data-photoswipe-height="{{ image.height }}"
+                                    data-index="{{ forloop.index }}"
+                                    data-src="{{ img_url }}"
+                                    data-widths="[360, 540, 720, 900, 1080]"
+                                    data-aspectratio="{{ image.aspect_ratio }}"
+                                    data-sizes="auto"
+                                    alt="{{ image_alt | escape }}"
+                                  >
+                                  <noscript>
+                                    <img
+                                      class="lazyloaded"
+                                      src="{{ image | img_url: product_image_size }}"
+                                      alt="{{ image_alt | escape }}"
+                                    >
+                                  </noscript>
+                                {%- else -%}
+                                  <img
+                                    class="lazyload"
+                                    data-photoswipe-src="{{ zoom_img_url }}"
+                                    data-photoswipe-width="{{ image.width }}"
+                                    data-photoswipe-height="{{ image.height }}"
+                                    data-index="{{ forloop.index }}"
+                                    data-src="{{ img_url }}"
+                                    data-widths="[360, 540, 720, 900, 1080]"
+                                    data-aspectratio="{{ image.aspect_ratio }}"
+                                    data-sizes="auto"
+                                    alt="{{ image_alt | escape }}"
+                                  >
+                                  <noscript>
+                                    <img
+                                      class="lazyloaded"
+                                      src="{{ image | img_url: product_image_size }}"
+                                      alt="{{ image_alt | escape }}"
+                                    >
+                                  </noscript>
+                                {%- endif -%}
+
+                                {%- if settings.product_zoom_enable -%}
+                                  <button
+                                    type="button"
+                                    class="btn btn--body btn--circle {% if settings.product_zoom_enable %}mobphotoswipe__image{{image_alt | replace: ' ', ''}}{% endif %} product__photo-zoom"
+                                  >
+                                    {% include 'icon-search' %}
+                                    <span class="icon__fallback-text">
+                                      {{- 'general.accessibility.close_modal' | t -}}
+                                    </span>
+                                  </button>
+                                {%- endif -%}
+                              </div>
+                              {%- if has_product_video -%}
+                                {%- assign aspect_width = settings.product_video_width | divided_by: 100.00 -%}
+                                {%- assign aspect_ratio = settings.product_video_height | divided_by: aspect_width -%}
+                                <div
+                                  data-video-type="{{ video_type }}"
+                                  class="
+                                    product__video-wrapper
+                                    {% if has_product_video %}
+                                      {% if video_type == 'youtube' or video_type == 'vimeo' %}
+                                        loading
+                                      {% endif %}
+                                    {% endif %}
+                                  "
+                                  data-video-style="{{ settings.product_video_style }}"
+                                  style="padding-bottom: {{ aspect_ratio }}%;"
+                                >
+                                  {%- if video_type == 'youtube' -%}
+                                    <div
+                                      id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                                      class="product__video"
+                                      data-image-count="{{product.images | size }}"
+                                      data-video-type="{{ video_type }}"
+                                      data-video-style="{{ settings.product_video_style }}"
+                                      data-youtube-id="{{ video_id }}"
+                                      data-video-width="{{ settings.product_video_width }}"
+                                      data-video-height="{{ settings.product_video_height }}"
+                                    ></div>
+                                  {%- endif -%}
+                                  {%- if video_type == 'vimeo' -%}
+                                    <div
+                                      id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                                      class="product__video"
+                                      data-image-count="{{product.images | size }}"
+                                      data-video-type="{{ video_type }}"
+                                      data-video-style="{{ settings.product_video_style }}"
+                                      data-video-id="{{ video_id }}"
+                                      data-video-width="{{ settings.product_video_width }}"
+                                      data-video-height="{{ settings.product_video_height }}"
+                                    ></div>
+                                  {%- endif -%}
+                                  {%- if video_type == 'mp4' -%}
+                                    <video
+                                      loop
+                                      playsinline
+                                      {% if settings.product_video_style == 'muted' %}
+                                        muted
+                                      {% endif %}
+                                      {% if settings.product_video_style == 'unmuted' %}
+                                        controls
+                                      {% endif %}
+                                      controlsList="nodownload"
+                                      data-image-count="{{product.images | size }}"
+                                      data-video-type="{{ video_type }}"
+                                      data-video-style="{{ settings.product_video_style }}"
+                                      {% if isModal %}
+                                        data-video-src="{{ image.alt }}"
+                                      {% endif %}
+                                      id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                                      class="product__video"
+                                    >
+                                      {%- unless isModal -%}
+                                        <source src="{{ image.alt }}" type="video/mp4">
+                                      {%- endunless -%}
+                                      Your browser does not support the video tag.
+                                    </video>
+                                  {%- endif -%}
+                                </div>
+                              {%- endif -%}
+                            </div>
+                          </div>
+                        {% endif %}
+                      {%- endfor -%}
+                    </div>
+                    <!-- Add Scrollbar have color -->
+                    <div class="swiper-scrollbar"></div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="swiper-container-product_mobile swiper-container-product variant_title_{{variant.title| handle}}  ffff{{product.selected_or_first_available_varian}}">
+                  <div class="swiper-wrapper">
+                    {%- for image in product.images -%}
+                      {%- assign is_featured = false -%}
+                      {%- if featured_image == image -%}
+                        {%- assign is_featured = true -%}
+                      {%- endif -%}
+                      {%- assign image_alt = image.alt -%}
+                      {%- assign has_product_video = false -%}
+                      {%- assign video_type = '' -%}
+                      {%- if image.alt contains 'youtube.com/watch' -%}
+                        {%- assign has_product_video = true -%}
+                        {%- assign video_type = 'youtube' -%}
+                        {%- assign video_id = image.alt | split: 'v=' -%}
+                        {%- assign video_id = video_id[1] | split: '&' | first -%}
+                      {%- endif -%}
+                      {%- if image.alt contains 'youtu.be/' -%}
+                        {%- assign has_product_video = true -%}
+                        {%- assign video_type = 'youtube' -%}
+                        {%- assign video_id = image.alt | split: '.be/' -%}
+                        {%- assign video_id = video_id[1] | split: '&' | first -%}
+                      {%- endif -%}
+                      {%- if image.alt contains 'vimeo.com' -%}
+                        {%- assign has_product_video = true -%}
+                        {%- assign video_type = 'vimeo' -%}
+                        {%- assign video_id = image.alt | split: '.com/' -%}
+                        {%- assign video_id = video_id[1] | split: '/' | first -%}
+                      {%- endif -%}
+                      {%- if image.alt contains '.mp4' -%}
+                        {%- assign has_product_video = true -%}
+                        {%- assign video_type = 'mp4' -%}
+                      {%- endif -%}
+                      {%- if has_product_video -%}
+                        {%- assign image_alt = product.title -%}
+                      {%- endif -%}
+                      <div
+                        class="swiper-slide pro_slides_for_mobile {% if is_featured %}starting-slides pro_slides{% else %}secondary-slides pro_slides{% endif %}"
+                        data-index="{{ forloop.index0 }}"
+                      >
+                        <div class="product-image-main product-image-main--{{ section_id }}">
+                          <div
+                            class="
+                              image-wrap
+                              {% if has_product_video and video_type == 'youtube' %} hide{% endif %}
+                              {% if has_product_video and video_type == 'vimeo' %} hide{% endif %}
+                              {% if has_product_video and video_type == 'mp4' %} hide{% endif %}
+                            "
+                            style="height: 0; padding-bottom: {{ 100 | divided_by: image.aspect_ratio }}%;"
+                          >
+                            {%- assign img_url = image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                            {%- assign zoom_img_url = image | img_url: product_zoom_size -%}
+                            {%- if is_featured -%}
+                              <img
+                                class="{% if settings.product_zoom_enable %}photoswipe__image{% endif %} lazyload"
+                                data-photoswipe-src="{{ zoom_img_url }}"
+                                data-photoswipe-width="{{ image.width }}"
+                                data-photoswipe-height="{{ image.height }}"
+                                data-index="{{ forloop.index }}"
+                                data-src="{{ img_url }}"
+                                data-widths="[360, 540, 720, 900, 1080]"
+                                data-aspectratio="{{ image.aspect_ratio }}"
+                                data-sizes="auto"
+                                alt="{{ image_alt | escape }}"
+                              >
+                              <noscript>
+                                <img
+                                  class="lazyloaded"
+                                  src="{{ image | img_url: product_image_size }}"
+                                  alt="{{ image_alt | escape }}"
+                                >
+                              </noscript>
+                            {%- else -%}
+                              <img
+                                class="{% if settings.product_zoom_enable %}photoswipe__image{% endif %} lazyload"
+                                data-photoswipe-src="{{ zoom_img_url }}"
+                                data-photoswipe-width="{{ image.width }}"
+                                data-photoswipe-height="{{ image.height }}"
+                                data-index="{{ forloop.index }}"
+                                data-src="{{ img_url }}"
+                                data-widths="[360, 540, 720, 900, 1080]"
+                                data-aspectratio="{{ image.aspect_ratio }}"
+                                data-sizes="auto"
+                                alt="{{ image_alt | escape }}"
+                              >
+                              <noscript>
+                                <img
+                                  class="lazyloaded"
+                                  src="{{ image | img_url: product_image_size }}"
+                                  alt="{{ image_alt | escape }}"
+                                >
+                              </noscript>
+                            {%- endif -%}
+
+                            {%- if settings.product_zoom_enable -%}
+                              <button
+                                type="button"
+                                class="btn btn--body btn--circle js-photoswipe__zoom product__photo-zoom"
+                              >
+                                {% include 'icon-search' %}
+                                <span class="icon__fallback-text">{{ 'general.accessibility.close_modal' | t }}</span>
+                              </button>
+                            {%- endif -%}
+                          </div>
+                          {%- if has_product_video -%}
+                            {%- assign aspect_width = settings.product_video_width | divided_by: 100.00 -%}
+                            {%- assign aspect_ratio = settings.product_video_height | divided_by: aspect_width -%}
+                            <div
+                              data-video-type="{{ video_type }}"
+                              class="
+                                product__video-wrapper
+                                {% if has_product_video %}
+                                  {% if video_type == 'youtube' or video_type == 'vimeo' %}
+                                    loading
+                                  {% endif %}
+                                {% endif %}
+                              "
+                              data-video-style="{{ settings.product_video_style }}"
+                              style="padding-bottom: {{ aspect_ratio }}%;"
+                            >
+                              {%- if video_type == 'youtube' -%}
+                                <div
+                                  id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                                  class="product__video"
+                                  data-image-count="{{product.images | size }}"
+                                  data-video-type="{{ video_type }}"
+                                  data-video-style="{{ settings.product_video_style }}"
+                                  data-youtube-id="{{ video_id }}"
+                                  data-video-width="{{ settings.product_video_width }}"
+                                  data-video-height="{{ settings.product_video_height }}"
+                                ></div>
+                              {%- endif -%}
+                              {%- if video_type == 'vimeo' -%}
+                                <div
+                                  id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                                  class="product__video"
+                                  data-image-count="{{product.images | size }}"
+                                  data-video-type="{{ video_type }}"
+                                  data-video-style="{{ settings.product_video_style }}"
+                                  data-video-id="{{ video_id }}"
+                                  data-video-width="{{ settings.product_video_width }}"
+                                  data-video-height="{{ settings.product_video_height }}"
+                                ></div>
+                              {%- endif -%}
+                              {%- if video_type == 'mp4' -%}
+                                <video
+                                  loop
+                                  playsinline
+                                  {% if settings.product_video_style == 'muted' %}
+                                    muted
+                                  {% endif %}
+                                  {% if settings.product_video_style == 'unmuted' %}
+                                    controls
+                                  {% endif %}
+                                  controlsList="nodownload"
+                                  data-image-count="{{product.images | size }}"
+                                  data-video-type="{{ video_type }}"
+                                  data-video-style="{{ settings.product_video_style }}"
+                                  {% if isModal %}
+                                    data-video-src="{{ image.alt }}"
+                                  {% endif %}
+                                  id="ProductVideo-{{ section_id }}-{{ forloop.index }}"
+                                  class="product__video"
+                                >
+                                  {%- unless isModal -%}
+                                    <source src="{{ image.alt }}" type="video/mp4">
+                                  {%- endunless -%}
+                                  Your browser does not support the video tag.
+                                </video>
+                              {%- endif -%}
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                  <!-- Add Scrollbar -->
+                  <div class="swiper-scrollbar"></div>
+                </div>
+              {% endif %}
+              <!-- end for mobile -->
+              <div style="clear: both;"></div>
+              {% if variant.metafields.levels.banner_under_image %}
+                {% for image in variant.metafields.levels.banner_under_image %}
+                  <img class="protein_icons_callouts dataaos" srcset="{{ image.src }}" alt="{{ image.alt }}">
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <!-- end for wrap data -->
+      </div>
+    </div>
+  </div>
+{%- else -%}
+  <div class="product__photos product__photos-{{ section_id }}">
+    <div class="product__main-photos" style="width: 100%">
+      <div id="ProductPhotos-{{ section_id }}">
+        <div data-index="{{ forloop.index0 }}">
+          <a href="#">
+            {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endunless -%}
+<style>
+  .pswp__scroll-wrap { opacity: 0; }
+  .opacity_show { opacity: 1 !important; }
+</style>
+
+{% capture variantColor %}{% for variantcolor in product.metafields.instructions.variantcolor %}{{variantcolor}}{% unless forloop.last == true %},{% endunless%}{% endfor %}{% endcapture %}
+{% capture variantVideo %}{% for variantcolor in product.metafields.accentuate.variantvideo %}{{variantcolor}}{% unless forloop.last == true %},{% endunless%}{% endfor %}{% endcapture %}
+
+<script>
+    {% unless YesColor %}
+      $(document).ready(function(){
+        $(".pro_slides_for_desktop, .pro_slides_for_mobile ").click(function(){
+          var datasrc = $(this).find('img').attr('data-photoswipe-src');
+          setTimeout(function(){ $( ".pswp__container .pswp__item" ).each(function( index ) { if (index == 1 ) { $(this).find('.pswp__img').attr('src', datasrc); } });  }, 500);
+          setTimeout(function(){ $( ".pswp__container .pswp__item" ).each(function( index ) { if (index == 1 ) { $(this).find('.pswp__img').attr('src', datasrc); $(".pswp__scroll-wrap").addClass('opacity_show') } });  }, 800);
+        });
+
+      $(document).on('click','body *',function(){
+        setTimeout(function(){
+          if ($(".pswp").hasClass('pswp--open')){
+          } else {
+            $(".pswp__scroll-wrap").removeClass("opacity_show");
+          }
+        }, 500);
+
+      })
+
+  //     $(".bg_color_product").remove();
+   	var indexdata = 0;
+      var htmlThumbnail = "";
+      var variantvideo = "{{variantVideo}}";
+
+      var variantcolor = "{{variantColor}}";
+      var variantvideo = "{{variantVideo}}";
+  	var newSize = $('.zgSize').val();
+      var splitVariantColor = variantcolor.split(",");
+      splitVariantColor.forEach(function(variantColor) {
+          var splitVariantColor = variantColor.split("|");
+          if (splitVariantColor[0].includes(newSize)  && splitVariantColor[0].replace(" ", "").length  == newSize.length) {
+            $(".bg_color_product").css("border-top-color", splitVariantColor[1] );
+          }
+      });
+
+      $('.variant_option_size').click(function(){
+  		var newSize =$(this).find(".wrap_button_variant").attr("value");
+          splitVariantColor.forEach(function(variantColor) {
+              var splitVariantColor = variantColor.split("|");
+              if (splitVariantColor[0].includes(newSize) && splitVariantColor[0].replace(" ", "").length == newSize.length ) {
+                $(".bg_color_product").css("border-top-color", splitVariantColor[1] );
+              }
+          });
+      });
+
+      if ($( window ).width() >= 1113) {
+        var windowWidth = $(".product-images-new").width();
+        var windowHeight = $(".pageContentProduct").height();
+        $(".bg_color_product").css("border-right-width", windowWidth  );
+        $(".bg_color_product").css("border-top-width", windowHeight + 120);
+      }
+      if ($( window ).width() < 1113 && $( window ).width() > 739) {
+        var windowWidth = $(".product-images-new").width();
+        var windowHeight = $(".pageContentProduct").height();
+        $(".bg_color_product").css("border-right-width", windowWidth  );
+        $(".bg_color_product").css("border-top-width", windowWidth);
+      }
+      if ($( window ).width() <= 739) {
+        var windowWidth = $(".wrapDataPhoto").width();
+        var windowHeight = $(".wrapDataPhoto").height();
+        $(".bg_color_product").css("border-right-width", windowWidth - 15);
+        $(".bg_color_product").css("border-top-width", windowHeight);
+      }
+      $( window ).resize(function() {
+        if ($( window ).width() > 1113) {
+          var windowWidth = $(".product-images-new").width();
+          var windowHeight = $(".pageContentProduct").height();
+          $(".bg_color_product").css("border-right-width", windowWidth  );
+          $(".bg_color_product").css("border-top-width", windowHeight + 120);
+        }
+        if ($( window ).width() <= 1113 && $( window ).width() > 739) {
+          var windowWidth = $(".product-images-new").width();
+          var windowHeight = $(".pageContentProduct").height();
+          $(".bg_color_product").css("border-right-width", windowWidth  );
+          $(".bg_color_product").css("border-top-width", windowWidth);
+        }
+        if ($( window ).width() <= 739) {
+          var windowWidth = $(".wrapDataPhoto").width();
+          var windowHeight = $(".wrapDataPhoto").height();
+          $(".bg_color_product").css("border-right-width", windowWidth - 15);
+          $(".bg_color_product").css("border-top-width", windowHeight);
+        }
+      });
+      $( ".ProductPhotosData .withoutColor").each(function( index ) {
+          indexdata ++;
+          var _this = $(this);
+          var data_alt_video = _this.attr("data_alt_video");
+          var srcImg = _this.find(".image-wrap").find("img").attr("data-photoswipe-src").replace("1800x1800", "100x100");
+          if (indexdata == 1) {
+            htmlThumbnail += "<div><img class='thumbActive "+ data_alt_video + "' dataIndex='"+indexdata+"' srcset='"+srcImg+"'></div>";
+          } else {
+            htmlThumbnail += "<div><img  class='"+ data_alt_video + "' dataIndex='"+indexdata+"' srcset='"+srcImg+"'></div>";
+          }
+          $(".wrapThumnail").html(htmlThumbnail);
+
+            if (variantvideo) {
+              var splitVariantVideo = variantvideo.split(",");
+              splitVariantVideo.forEach(function(variantVideo) {
+                  var splitVariantVideo = variantVideo.split("|");
+                  $("."+splitVariantVideo[0]).attr("data_video", splitVariantVideo[1]);
+                  $("."+splitVariantVideo[0]).parent().addClass("has_data_video");
+
+                  var splitVariant = splitVariantVideo[0].split("_");
+                  var indexSplit = splitVariant[1];
+                  console.log(splitVariant)
+                  $(".variant_title_medium_"+splitVariant[0] + " .swiper-wrapper .swiper-slide:nth-child("+indexSplit+")").addClass("has_video_mobi");
+  //                 $(".variant_title_"+splitVariant[0] + " .swiper-wrapper .swiper-slide:nth-child("+indexSplit+")").attr("data_video_mobi", splitVariantVideo[1]);
+  //                 $(".variant_title_"+splitVariant[0] + " .swiper-scrollbar .swiper-pagination-bullet:nth-child("+indexSplit+")").addClass("has_data_video_mobi");
+
+  //                 var dataphotoswipesrc = $(".variant_title_"+splitVariant[0] + " .swiper-wrapper .swiper-slide:nth-child("+indexSplit+")").find("img").attr("data-photoswipe-src").replace("1800x1800", "500x500");
+
+  //                 $('<style>.variant_title_'+splitVariant[0] + '  .has_video_mobi .product-image-main:after{background: url("'+dataphotoswipesrc+'");}</style>').appendTo('head');
+
+              });
+            }
+
+      });
+
+
+      $(".wrapThumnail img").click(function(){
+  		var dataIndex = $(this).attr("dataindex");
+        	$(".slider_alt_actives").css("opacity", 0);
+          $(".slider_alt_actives_" + dataIndex).css("opacity", 1);
+          $(".wrapThumnail img").removeClass("thumbActive");
+          $(this).addClass("thumbActive");
+
+      });
+
+      $(".variant_option_size").click(function(){
+        var data_index = $(this).find(".variant-input").attr("value");
+        $(".variant_option_size").removeClass("selected_variant")
+        $(this).addClass("selected_variant")
+        $(".zgSize").val(data_index).change();
+      });
+  });
+    {% endunless %}
+
+
+  $(document).ready(function(){
+  {% if YesColor %}
+    {% assign newalts = '' %}
+    {%- for image in product.images -%}
+    	 {% assign newalts = newalts | append: image.alt | append: ', '%}
+    {%- endfor -%}
+    {% assign newestalt = newalts | split: ', ' | uniq | join: ', ' %}
+    {% assign newesT = newestalt | replace: ' ','' | replace: '"','' | replace: '[','' | replace: ']','' | split: ','  %}
+
+    {% for newest in newesT %}
+
+    	var count = 1;
+    	  $('.photoswipe__image{{newest}}').each(function(i){
+            $(this).parent().find('img').attr('data-index',count);
+    		  count = count + 1;
+        });
+
+      var counts = 1;
+    	  $('.mobphotoswipe__image{{newest}}').each(function(i){
+            $(this).parent().find('img').attr('data-index',counts);
+    		  counts = counts + 1;
+        });
+
+
+    	  $(".photoswipe__image{{newest}}").click(function(e){
+             e.preventDefault();
+             console.log('click working');
+
+             var pswpElement = $('.pswp')[0];
+
+            // build items array
+            var ImgLen = $('.photoswipe__image{{newest}}').length;
+
+            var Index = parseInt($(this).parent().find('img').attr('data-index')) - 1;
+
+            var items = [ ];
+            $('.photoswipe__image{{newest}}').each(function(i){
+              	items.push(
+                    {
+                      src: $(this).parent().find('img').attr('data-photoswipe-src'),
+                      w: $(this).parent().find('img').attr('data-photoswipe-width'),
+                      h: $(this).parent().find('img').attr('data-photoswipe-height'),
+                      pid: parseInt($(this).parent().find('img').attr('data-index')) - 1
+                    },
+                   );
+
+            });
+
+            // define options (if needed)
+            var options = {
+                history: true,
+                focus: true,
+                galleryPIDs:true,
+                counterEl: false,
+                showAnimationDuration: 0,
+                hideAnimationDuration: 0
+            };
+
+            var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
+            gallery.init();
+    		  gallery.goTo(Index);
+
+    		   $(".pswp__scroll-wrap").addClass('opacity_show');
+    	  });
+
+        $(".mobphotoswipe__image{{newest}}").click(function(e){
+             e.preventDefault();
+             console.log('click working');
+
+             var pswpElement = $('.pswp')[0];
+
+            // build items array
+            var ImgLen = $('.photoswipe__image{{newest}}').length;
+
+            var Index = parseInt($(this).parent().find('img').attr('data-index')) - 1;
+
+            var items = [ ];
+            $('.mobphotoswipe__image{{newest}}').each(function(i){
+              	items.push(
+                    {
+                      src: $(this).parent().find('img').attr('data-photoswipe-src'),
+                      w: $(this).parent().find('img').attr('data-photoswipe-width'),
+                      h: $(this).parent().find('img').attr('data-photoswipe-height'),
+                      pid: $(this).parent().find('img').attr('data-index')
+                    },
+                   );
+
+            });
+
+            // define options (if needed)
+            var options = {
+                history: true,
+                focus: true,
+                counterEl: false,
+                showAnimationDuration: 0,
+                hideAnimationDuration: 0
+            };
+
+            var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
+            gallery.init();
+            gallery.goTo(Index);
+
+    		   $(".pswp__scroll-wrap").addClass('opacity_show');
+    	  });
+    {% endfor %}
+
+      var variantcolor = "{{variantColor}}";
+      var variantvideo = "{{variantVideo}}";
+    	var newflavor = $('.zgFlavor').val();
+      var newSize = $('.zgSize').val();
+      if (newSize) {
+        var newVal = newflavor.replace("$", "") + ' ' + newSize;
+      } else {
+  	  var newVal = newflavor.replace("$", "");
+      }
+      var indexdata = 0;
+      var indexdata2 = 0;
+      var htmlThumbnail = "";
+
+      var splitVariantColor = variantcolor.split(",");
+      splitVariantColor.forEach(function(variantColor) {
+          var splitVariantColor = variantColor.split("|");
+          if (splitVariantColor[0].includes(newflavor)) {
+            $(".bg_color_product").css("border-top-color", splitVariantColor[1] );
+          }
+      });
+      $(".wrapThumnail").html('');
+      $('.pro_slides_for_desktop').each(function(){
+      	var newImg = $(this).find('img').attr('alt');
+          var data_alt_video = $(this).attr("data_alt_video");
+        	if(newImg === newVal)
+          {
+              indexdata ++;
+          	$(this).show();
+              $(this).addClass("slider_alt_actives");
+              $(this).addClass("slider_index_actives_" + indexdata);
+              var _this = $(this);
+              var srcImg = _this.find(".image-wrap").find("img").attr("data-photoswipe-src").replace("1800x1800", "100x100");
+              if (indexdata == 1) {
+                htmlThumbnail += "<div><img class='thumbActive "+ data_alt_video + '_' + indexdata + "' dataIndex='"+indexdata+"' srcset='"+srcImg+"'></div>";
+              } else {
+                htmlThumbnail += "<div><img class='"+ data_alt_video + '_' + indexdata + "' dataIndex='"+indexdata+"' srcset='"+srcImg+"'></div>";
+              }
+              $(".wrapThumnail").html(htmlThumbnail);
+
+            if (variantvideo) {
+              var splitVariantVideo = variantvideo.split(",");
+              splitVariantVideo.forEach(function(variantVideo) {
+
+                  var splitVariantVideo = variantVideo.split("|");
+
+                  $("."+splitVariantVideo[0]).attr("data_video", splitVariantVideo[1]);
+                  $("."+splitVariantVideo[0]).parent().addClass("has_data_video");
+
+
+                  var splitVariant = splitVariantVideo[0].split("_");
+                  var indexSplit = splitVariant[1];
+
+                  $(".variant_title_"+splitVariant[0] + " .swiper-wrapper .swiper-slide:nth-child("+indexSplit+")").addClass("has_video_mobi");
+                  $(".variant_title_"+splitVariant[0] + " .swiper-wrapper .swiper-slide:nth-child("+indexSplit+")").attr("data_video_mobi", splitVariantVideo[1]);
+                  $(".variant_title_"+splitVariant[0] + " .swiper-scrollbar .swiper-pagination-bullet:nth-child("+indexSplit+")").addClass("has_data_video_mobi");
+
+                  var dataphotoswipesrc = $(".variant_title_"+splitVariant[0] + " .swiper-wrapper .swiper-slide:nth-child("+indexSplit+")").find("img").attr("data-photoswipe-src");
+
+                  $('<style>.variant_title_'+splitVariant[0] + '  .has_video_mobi .product-image-main:after{background: url("'+dataphotoswipesrc+'");}</style>').appendTo('head');
+              });
+
+            }
+
+
+          }
+          else
+          {
+          	$(this).hide();
+              $(this).removeClass("slider_alt_actives");
+          }
+      });
+
+      $('.swiper-container-product').each(function(){
+      	var newImg = $(this).attr('data-option');
+        	if(newImg === newVal)
+          {
+              indexdata2 ++;
+          	$(this).show();
+              $(this).addClass("slider_alt_actives");
+              $(this).addClass("slider_index_actives_" + indexdata2);
+          }
+          else
+          {
+          	$(this).hide();
+              $(this).removeClass("slider_alt_actives");
+          }
+      });
+
+      $('.variant_option_flavor, .variant_option_color, .variant_option_value').click(function(){
+  		var newFlavor =$(this).find(".wrap_button_variant").attr("value");
+          splitVariantColor.forEach(function(variantColor) {
+              var splitVariantColor = variantColor.split("|");
+              if (splitVariantColor[0].includes(newFlavor)) {
+                $(".bg_color_product").css("border-top-color", splitVariantColor[1] );
+              }
+          });
+      });
+      $('.zgFlavor').change(function(){
+      	var newsize = $('.zgSize').val();
+        	var newFlavor = $(this).val();
+          if (newsize) {
+            var newval = newFlavor.replace("$", "") + ' ' + newsize;
+          } else {
+  		  var newval = newFlavor.replace("$", "");
+          }
+
+          var index = 0;
+          var index2 = 0;
+          var htmlThumbnail2 = "";
+          $(".wrapThumnail").html('');
+        	$('.pro_slides_for_desktop').each(function(){
+              var newImg = $(this).find('img').attr('alt');
+              if(newImg === newval)
+              {
+                  index ++;
+                  $(this).show();
+                  $(this).addClass("slider_alt_actives");
+                  $(this).addClass("slider_index_actives_" + index);
+                  var _this = $(this);
+                  var srcImg = _this.find(".image-wrap").find("img").attr("data-photoswipe-src").replace("1800x1800", "100x100");
+                  if (indexdata == 1) {
+                    htmlThumbnail2 += "<img class='thumbActive' dataIndex='"+indexdata+"' srcset='"+srcImg+"'>";
+                  } else {
+                    htmlThumbnail2 += "<img  dataIndex='"+indexdata+"' srcset='"+srcImg+"'>";
+                  }
+                  $(".wrapThumnail").html(htmlThumbnail2);
+              }
+              else
+              {
+                  $(this).hide();
+                  $(this).removeClass("slider_alt_actives");
+              }
+          });
+
+          $('.swiper-container-product').each(function(){
+              var newImg = $(this).attr('data-option');
+              if(newImg === newval)
+              {
+                	index2 ++;
+                  $(this).show();
+                  $(this).addClass("slider_alt_actives");
+                  $(this).addClass("slider_index_actives_" + index2);
+              }
+              else
+              {
+                  $(this).hide();
+                  $(this).removeClass("slider_alt_actives");
+              }
+          });
+
+        	 var swiper = new Swiper('.swiper-container-product', {
+            slidesPerView: 1,
+            loop: false,
+            scrollbar: {
+              el: '.swiper-scrollbar',
+              hide: false,
+            },
+            breakpoints: {
+              // when window width is >= 320px
+              320: {
+               slidesPerView: 'auto',
+                spaceBetween: 0
+              },
+              // when window width is >= 480px
+              480: {
+                slidesPerView: 1,
+                spaceBetween: 0
+              },
+              // when window width is >= 640px
+              640: {
+                slidesPerView: 1,
+                spaceBetween: 1
+              }
+            }
+          });
+      });
+
+      $('.zgSize').change(function(){
+      	var newsize = $('.zgFlavor').val();
+        	var newFlavor = $(this).val();
+        	var newval = newsize + ' ' + newFlavor;
+          var index = 0;
+          var index2 = 0;
+          var htmlThumbnail3 = "";
+
+          $(".wrapThumnail").html('');
+        	$('.pro_slides_for_desktop').each(function(){
+              var newImg = $(this).find('img').attr('alt');
+              if(newImg === newval)
+              {
+                	index ++;
+                  $(this).show();
+                  $(this).addClass("slider_alt_actives");
+                  $(this).addClass("slider_index_actives_" + index);
+                  var _this = $(this);
+                  var srcImg = _this.find(".image-wrap").find("img").attr("data-photoswipe-src").replace("1800x1800", "100x100");;
+                  if (indexdata == 1) {
+                    htmlThumbnail3 += "<img class='thumbActive' dataIndex='"+indexdata+"' srcset='"+srcImg+"'>";
+                  } else {
+                    htmlThumbnail3 += "<img  dataIndex='"+indexdata+"' srcset='"+srcImg+"'>";
+                  }
+                  $(".wrapThumnail").html(htmlThumbnail3);
+              }
+              else
+              {
+                  $(this).hide();
+                  $(this).removeClass("slider_alt_actives");
+              }
+          });
+
+          $('.swiper-container-product').each(function(){
+              var newImg = $(this).attr('data-option');
+              if(newImg === newval)
+              {
+                  index2 ++;
+                  $(this).show();
+                  $(this).addClass("slider_alt_actives");
+                  $(this).addClass("slider_index_actives_" + index2 );
+              }
+              else
+              {
+                  $(this).hide();
+                  $(this).removeClass("slider_alt_actives");
+              }
+          });
+
+        	 var swiper = new Swiper('.swiper-container-product', {
+            slidesPerView: 1,
+            loop: false,
+            scrollbar: {
+              el: '.swiper-scrollbar',
+              hide: false,
+            },
+            breakpoints: {
+              // when window width is >= 320px
+              320: {
+               slidesPerView: 'auto',
+                spaceBetween: 0
+              },
+              // when window width is >= 480px
+              480: {
+                slidesPerView: 1,
+                spaceBetween: 0
+              },
+              // when window width is >= 640px
+              640: {
+                slidesPerView: 1,
+                spaceBetween: 0
+              }
+            }
+          });
+      });
+
+      $(".wrapThumnail img").click(function(){
+  		var dataIndex = $(this).attr("dataindex");
+        	$(".slider_alt_actives").css("opacity", 0);
+        	$(".slider_alt_actives .btn--circle").css("z-index", 0);
+
+          $(".slider_index_actives_" + dataIndex).css("opacity", 1);
+          $(".slider_index_actives_" + dataIndex).find('.btn--circle').css("z-index", 1);
+          $(".wrapThumnail img").removeClass("thumbActive");
+          $(this).addClass("thumbActive");
+      });
+
+      $(".has_data_video").click(function(){
+  		var dataIndex = $(this).find("img").attr("dataindex");
+        	$(".slider_alt_actives").css("opacity", 0);
+          $(".slider_alt_actives .btn--circle").css("z-index", 0);
+          $(".slider_index_actives_" + dataIndex).css("opacity", 1);
+          $(".slider_index_actives_" + dataIndex).find('.btn--circle').css("z-index", 1);
+          $(".wrapThumnail img").removeClass("thumbActive");
+          $(this).find("img").addClass("thumbActive");
+      });
+
+      if ($( window ).width() >= 1113) {
+        var windowWidth = $(".product-images-new").width();
+        var windowHeight = $(".pageContentProduct").height();
+        $(".bg_color_product").css("border-right-width", windowWidth  );
+        $(".bg_color_product").css("border-top-width", windowHeight + 120);
+      }
+      if ($( window ).width() < 1113 && $( window ).width() > 739) {
+        var windowWidth = $(".product-images-new").width();
+        var windowHeight = $(".pageContentProduct").height();
+        $(".bg_color_product").css("border-right-width", windowWidth  );
+        $(".bg_color_product").css("border-top-width", windowWidth);
+      }
+      if ($( window ).width() <= 739) {
+        var windowWidth = $(".wrapDataPhoto").width();
+        var windowHeight = $(".wrapDataPhoto").height();
+        $(".bg_color_product").css("border-right-width", windowWidth - 15);
+        $(".bg_color_product").css("border-top-width", windowHeight);
+      }
+      $( window ).resize(function() {
+        if ($( window ).width() > 1113) {
+          var windowWidth = $(".product-images-new").width();
+          var windowHeight = $(".pageContentProduct").height();
+          $(".bg_color_product").css("border-right-width", windowWidth  );
+          $(".bg_color_product").css("border-top-width", windowHeight + 120);
+        }
+        if ($( window ).width() <= 1113 && $( window ).width() > 739) {
+          var windowWidth = $(".product-images-new").width();
+          var windowHeight = $(".pageContentProduct").height();
+          $(".bg_color_product").css("border-right-width", windowWidth  );
+          $(".bg_color_product").css("border-top-width", windowWidth);
+        }
+        if ($( window ).width() <= 739) {
+          var windowWidth = $(".wrapDataPhoto").width();
+          var windowHeight = $(".wrapDataPhoto").height();
+          $(".bg_color_product").css("border-right-width", windowWidth - 15);
+          $(".bg_color_product").css("border-top-width", windowHeight);
+        }
+      });
+
+      $(".variant_option_flavor, .variant_option_color, .variant_option_value").one('click',function(){
+        $(".aos-init").removeClass("aos-animate");
+        $('.hide_data .product__price').text($('.wrapper-top .product__price').text());
+        $("#global-mask").fadeTo(100, 1).css("visibility", "visible");
+        var data_index = $(this).find(".variant-input").attr("value");
+        $(".variant_option_flavor, .variant_option_color, .variant_option_value").removeClass("selected_variant")
+        $(this).addClass("selected_variant")
+        $(".zgFlavor").val(data_index).change();
+        var Variants = $(".linked-product").text();
+        $(".wrapper-ne .wrap_new_variant .wrap_variant").each(function (index) {
+          if ($(this).hasClass("selected_variant")) {
+            var a = $(this).find(".wrap_button_variant").attr("value");
+
+            $(".wrapper-nes .wrap_new_variant .wrap_variant").each(function (index) {
+              var b = $(this).find(".wrap_button_variant").attr("value");
+              var c = b.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '').replace(/^-/, '');;
+              var name = a + " / " + b;
+              if (!Variants.includes(name)) {
+                $(".handle_" + c).addClass('outOfStock');
+                $(".zgSize ." + c).attr('unavailablev', 'true');
+              }
+            });
+          }
+        });
+        console.log('selected_variant', $(".wrapper-nes .selected_variant").hasClass('outOfStock'))
+        var attrUnavailable = $('.zgFlavor').find('option:selected').attr('unavailablev');
+
+        if (attrUnavailable == 'true' && $(".wrapper-nes .selected_variant").hasClass('outOfStock') == true) {
+
+          var lengthSize = $('.zgSize').children('option').length;
+          var i = 1;
+          var j = 1;
+          var isSize = "";
+          while (i <= lengthSize) {
+
+            if ($('.zgSize').children('option:nth-child('+i+')').attr('unavailablev') == 'true') {
+
+            } else {
+              if (j == 1) {
+                isSize = $('.zgSize').children('option:nth-child('+i+')').attr('value');
+              }
+              j += 1;
+            }
+            i++;
+          }
+          console.log('isSize', isSize);
+
+          setTimeout(function(){
+            var strClass = "variant_option_size.handle_" + isSize.toLowerCase();
+            $("."+strClass).trigger('click');
+          }, 100);
+
+        } else {
+          setTimeout(function(){
+              $("#Main").html(document.querySelectorAll( '#MainContent' ));
+              if ($("body").hasClass("has_click")) {} else {$("#Main").html(document.querySelectorAll( '#MainContent' )); $("body").addClass("has_click"); }
+          }, 600);
+        }
+        setTimeout(function(){ $("#global-mask").fadeTo(1000, 0); }, 1000);
+        setTimeout(function(){  $("#global-mask").css("visibility", "hidden"); }, 1500);
+      });
+
+      $(".variant_option_size").click(function(){
+        $(".aos-init").removeClass("aos-animate");
+        $('.hide_data .product__price').text($('.wrapper-top .product__price').text());
+        $("#global-mask").fadeTo(100, 1).css("visibility", "visible");
+        var data_index = $(this).find(".variant-input").attr("value");
+        $(".variant_option_size").removeClass("selected_variant")
+        $(this).addClass("selected_variant")
+        $(".zgSize").val(data_index).change();
+
+        setTimeout(function(){
+            $("#Main").html(document.querySelectorAll( '#MainContent' ));
+            if ($("body").hasClass("has_click")) {} else {$("#Main").html(document.querySelectorAll( '#MainContent' )); $("body").addClass("has_click"); }
+        }, 800);
+        setTimeout(function(){ $("#global-mask").fadeTo(1000, 0); }, 800);
+        setTimeout(function(){  $("#global-mask").css("visibility", "hidden"); }, 1500);
+      });
+
+    {% endif %}
+  });
+</script>
